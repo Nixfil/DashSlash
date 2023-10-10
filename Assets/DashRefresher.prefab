@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 9103059245213902031}
   - component: {fileID: 7379834271488299913}
   - component: {fileID: -5644665549901505631}
+  - component: {fileID: 3563567637691975353}
   m_Layer: 0
   m_Name: DashRefresher
   m_TagString: DashRefresher
@@ -175,3 +176,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   proj: {fileID: 6535327384467831942, guid: 06bb38bfb35040a42bfa681d2df415d8, type: 3}
+--- !u!114 &3563567637691975353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017609525050985101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 273c5e8b93ca1a54c9def2bf3eda4c7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

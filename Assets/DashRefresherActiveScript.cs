@@ -19,5 +19,7 @@ public class DashRefresherActiveScript : MonoBehaviour
         yield return new WaitForSeconds(0.75f);
         triggerbox.enabled = true;
         renderer.material.SetColor("_Color", Color.green);
+        yield return new WaitForSeconds(4f);
+        Destroy(this.gameObject);
     }
 }
