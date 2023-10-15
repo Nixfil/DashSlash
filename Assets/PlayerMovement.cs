@@ -5,7 +5,6 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float WalkSpeed = 5f;
     [SerializeField] private float dashSpeed = 80f;
     [SerializeField] private float dashDuration = 0.5f;
     [SerializeField] private float dashCD = 3f;
@@ -14,15 +13,20 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool isDashing = false;
     [SerializeField] private bool canDash = true;
     [SerializeField] private bool hitDashRefresher = false;
+
+    private PlayerStats PS;
     private Input_Handler IHS;
     private Camera camera;
     private Rigidbody2D rb;
     private Vector3 dashTarget;
+
     public float experiment;
-   // public GameObject trail;
+    public GameObject DashRefresherPrefab;
+    // public GameObject trail;
 
     private void Awake()
     {
+        PS=GetComponent<PlayerStats>();
         IHS = GetComponent<Input_Handler>();
         rb = GetComponent<Rigidbody2D>();
         camera = Camera.main;
@@ -34,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Move();
         }
-        if (IHS.dashInput && !isDashing && canDash)
+        if (IHS.LeftClick && !isDashing && canDash)
         {
             PrepareDash();
         }
@@ -42,10 +46,14 @@ public class PlayerMovement : MonoBehaviour
         {
             CalculateDistance();
         }
+        if (IHS.RightClick)
+        {
+            LaunchRefresher();
+        }
     }
     private void Move()
     {
-        rb.velocity = new Vector2(IHS.horizontalInput * WalkSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(IHS.MoveInput * PS.movespeed, rb.velocity.y);
     }
     private void PrepareDash()
     {
@@ -64,7 +72,6 @@ public class PlayerMovement : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position, dashTarget, dashSpeed * Time.deltaTime);
             yield return null;
             }
-        Debug.Log("Seks");
         isDashing = false;
        // Destroy(trail);
         rb.gravityScale = 1f;
@@ -96,6 +103,18 @@ public class PlayerMovement : MonoBehaviour
             hitDashRefresher = true;
 
         }
+    }
+    private void LaunchRefresher()
+    {
+        var instance = Instantiate(DashRefresherPrefab, transform.position, Quaternion.identity);
+        Rigidbody2D rb = instance.GetComponent<Rigidbody2D>();
+        Vector3 mousePosition = camera.ScreenToWorldPoint(Input.mousePosition);
+        mousePosition.z = 0f; 
+
+        Vector2 direction = (mousePosition - transform.position).normalized;
+
+
+        rb.AddForce(direction * 10f, ForceMode2D.Impulse);
     }
 }
 

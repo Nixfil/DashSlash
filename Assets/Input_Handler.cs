@@ -5,13 +5,13 @@ using static UnityEditor.PlayerSettings;
 
 public class Input_Handler : MonoBehaviour
 {
-    public float horizontalInput { get; private set; }
-    public bool dashInput {  get; private set; }
-    public bool refresherLauncher { get; private set; }
+    public float MoveInput { get; private set; }
+    public bool LeftClick {  get; private set; }
+    public bool RightClick { get; private set; }
     private void Update()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        dashInput = Input.GetMouseButtonDown(0);
-        refresherLauncher = Input.GetMouseButtonUp(1);
+        MoveInput = Input.GetAxis("Horizontal");
+        LeftClick = Input.GetMouseButtonDown(0);
+        RightClick = Input.GetMouseButtonUp(1);
     }
 }

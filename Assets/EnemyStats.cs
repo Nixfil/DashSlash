@@ -18,10 +18,10 @@ public class EnemyStats : MonoBehaviour
     {
         if (collision.gameObject.tag == "Projectile")
         {
-            // Call LoseHealth when hit by a projectile
+            
             LoseHealth();
 
-            // Destroy the projectile that hit the enemy
+            
             Destroy(collision.gameObject);
         }
     }
