@@ -267,7 +267,6 @@ GameObject:
   - component: {fileID: 426559462}
   - component: {fileID: 426559464}
   - component: {fileID: 426559460}
-  - component: {fileID: 426559463}
   - component: {fileID: 426559465}
   m_Layer: 0
   m_Name: Player
@@ -391,6 +390,7 @@ MonoBehaviour:
   canDash: 1
   hitDashRefresher: 0
   experiment: 0
+  DashRefresherPrefab: {fileID: 1017609525050985101, guid: d17b01689780fe14c93824ac892b5f7c, type: 3}
 --- !u!61 &426559462
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -436,19 +436,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &426559463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 426559455}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 433559ead4c81a34c95d24e85726ac6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DashRefresherPrefab: {fileID: 1017609525050985101, guid: d17b01689780fe14c93824ac892b5f7c, type: 3}
 --- !u!114 &426559464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,6 +474,7 @@ GameObject:
   - component: {fileID: 470608861}
   - component: {fileID: 470608863}
   - component: {fileID: 470608864}
+  - component: {fileID: 470608865}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -620,6 +608,22 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &470608865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470608860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c217dc72c098044f9336b6bad38465d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movespeed: 2
+  contactDamage: 0
+  enemyType: 0
+  PSS: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
