@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool isDashing = false;
     [SerializeField] private bool canDash = true;
     [SerializeField] private bool hitDashRefresher = false;
+    public float dashForce;
 
     private PlayerStats PS;
     private Input_Handler IHS;
@@ -65,18 +66,37 @@ public class PlayerMovement : MonoBehaviour
     }
     private IEnumerator Dash()
     {
+        /*  isDashing = true;
+          canDash = false;
+              while (transform.position != dashTarget)
+              {
+                  transform.position = Vector3.MoveTowards(transform.position, dashTarget, dashSpeed * Time.deltaTime);
+              yield return null;
+              }
+          isDashing = false;
+         // Destroy(trail);
+          rb.gravityScale = 1f;
+          yield return new WaitForSeconds(dashCD);
+          RefreshDash ();*/
         isDashing = true;
         canDash = false;
-            while (transform.position != dashTarget)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, dashTarget, dashSpeed * Time.deltaTime);
+
+        Vector3 dashDirection = (dashTarget - transform.position).normalized;
+
+        // Apply a force to maintain momentum
+        rb.AddForce(dashDirection * dashForce, ForceMode2D.Impulse);
+
+        while (Vector3.Distance(transform.position, dashTarget) > 0.1f)
+        {
+            // Continue moving towards the target
+            transform.position = Vector3.MoveTowards(transform.position, dashTarget, dashSpeed * Time.deltaTime);
             yield return null;
-            }
+        }
         isDashing = false;
-       // Destroy(trail);
         rb.gravityScale = 1f;
+
         yield return new WaitForSeconds(dashCD);
-        RefreshDash ();
+        RefreshDash();
     }
     public void GainControl()
     {

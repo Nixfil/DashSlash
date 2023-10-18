@@ -389,6 +389,7 @@ MonoBehaviour:
   isDashing: 0
   canDash: 1
   hitDashRefresher: 0
+  dashForce: 3.96
   experiment: 0
   DashRefresherPrefab: {fileID: 1017609525050985101, guid: d17b01689780fe14c93824ac892b5f7c, type: 3}
 --- !u!61 &426559462
@@ -543,7 +544,7 @@ Transform:
   m_GameObject: {fileID: 470608860}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.97, y: -3.44, z: 0}
+  m_LocalPosition: {x: 2.16, y: -3.46, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -622,6 +623,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movespeed: 2
   contactDamage: 0
+  health: 0
+  moveSpeed: 2
+  patrolDistance: 5
+  isMovingRight: 1
+  EnemyProjGO: {fileID: 6535327384467831942, guid: 2913bbf779fa03f4e84400488923a6e3, type: 3}
   enemyType: 0
   PSS: {fileID: 0}
 --- !u!1 &519420028
