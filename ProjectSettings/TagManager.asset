@@ -8,11 +8,12 @@ TagManager:
   - Enemy
   - Projectile
   - EnemyProjectile
+  - Terrain
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Projectile
   - Water
   - UI
   - 

@@ -22,12 +22,11 @@ public class EnemyBehaviour : MonoBehaviour
     [SerializeField] private float moveSpeed = 2.0f;
     [SerializeField] private float patrolDistance = 5.0f;
     [SerializeField] private bool isMovingRight = true;
-
+    [SerializeField] private float projSpeed;
 
     private Vector3 spawnPosition;
-
-
     private GameObject player;
+    private BoxCollider2D boxCollider;
 
 
     public GameObject EnemyProjGO;
@@ -48,6 +47,9 @@ public class EnemyBehaviour : MonoBehaviour
         {
             case EnemyType.Shooter:
                 StartCoroutine("StopAndShootProjectile");
+                break;
+            case EnemyType.TriShooter:
+                StartCoroutine("StopAndTriShootProjectile");
                 break;
         }
     }
@@ -90,11 +92,16 @@ public class EnemyBehaviour : MonoBehaviour
     }
     private void Update()
     {
-       switch (enemyType)
+        if (health <= 0) Destroy(this.gameObject);
+        switch (enemyType)
         {
             case EnemyType.Shooter:
                 Patrol();
                 break;
+            case EnemyType.TriShooter:
+                Patrol();
+                break;
+
 
             default:
                 Debug.LogError("Invalid enemy type: " + enemyType);
@@ -127,17 +134,49 @@ public class EnemyBehaviour : MonoBehaviour
     IEnumerator StopAndShootProjectile()
     {
         yield return new WaitForSeconds(2);
-        Vector2 shootDirection = transform.position - player.transform.position;
+        Vector2 shootDirection = player.transform.position - transform.position;
         var enemyProj = Instantiate(EnemyProjGO, transform.position, Quaternion.identity);
+        Physics2D.IgnoreCollision(enemyProj.GetComponent<CapsuleCollider2D>(), boxCollider);
         Rigidbody2D rbProj = enemyProj.GetComponent<Rigidbody2D>();
-        rbProj.AddForce(shootDirection * 5f, ForceMode2D.Force);
+        rbProj.velocity = shootDirection * projSpeed;
         StartCoroutine(StopAndShootProjectile());
+    }
+    IEnumerator StopAndTriShootProjectile()
+    {
+        yield return new WaitForSeconds(2);
+        Vector2 shootDirection = (player.transform.position - transform.position).normalized;
+        float angleOffset = 30f; // Angle offset in degrees
+
+        for (int i = 0; i < 3; i++)
+        {
+
+            float angle = (i - 1) * angleOffset;
+            Vector2 direction = Quaternion.Euler(0, 0, angle) * shootDirection;
+
+
+            var enemyProj = Instantiate(EnemyProjGO, transform.position, Quaternion.identity);
+
+
+            Physics2D.IgnoreCollision(enemyProj.GetComponent<CapsuleCollider2D>(), boxCollider);
+
+            Rigidbody2D rbProj = enemyProj.GetComponent<Rigidbody2D>();
+            rbProj.velocity = direction * projSpeed;
+        }
+            StartCoroutine(StopAndTriShootProjectile());
+    }
+    public void LoseHealth(int damage)
+    {
+        health -= damage;
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.tag == "Player")
         {
             PSS.LoseHP(contactDamage);
+        }
+        else if (collision.gameObject.tag =="Projectile")
+        {
+            LoseHealth(1);
         }
     }
 }
