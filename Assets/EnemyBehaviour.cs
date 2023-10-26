@@ -22,7 +22,8 @@ public class EnemyBehaviour : MonoBehaviour
     [SerializeField] private float moveSpeed = 2.0f;
     [SerializeField] private float patrolDistance = 5.0f;
     [SerializeField] private bool isMovingRight = true;
-    [SerializeField] private float projSpeed;
+    [SerializeField] private float projSpeed=9f;
+    [SerializeField] private bool patrolling;
 
     private Vector3 spawnPosition;
     private GameObject player;
@@ -36,9 +37,12 @@ public class EnemyBehaviour : MonoBehaviour
     {
         player = GameObject.FindWithTag("Player");
         PSS = player.GetComponent<PlayerStats>();
+        boxCollider = GetComponent<BoxCollider2D>();
     }
     private void Start()
     {
+        patrolling = true;
+
         contactDamage = GetContactDamage(enemyType);
         health = GetHealth(enemyType);
 
@@ -81,7 +85,7 @@ public class EnemyBehaviour : MonoBehaviour
             case EnemyType.TriShooter:
                 return 3;
             case EnemyType.Follower:
-                return 5;
+                return 2;
             case EnemyType.HoppingFollower:
                 return 6;
             case EnemyType.ShieldedShooter:
@@ -93,15 +97,22 @@ public class EnemyBehaviour : MonoBehaviour
     private void Update()
     {
         if (health <= 0) Destroy(this.gameObject);
+
+
+        //Switch for all the actions
+
+
         switch (enemyType)
         {
             case EnemyType.Shooter:
-                Patrol();
+                if(patrolling) Patrol();
                 break;
             case EnemyType.TriShooter:
-                Patrol();
+                if(patrolling) Patrol();
                 break;
-
+            case EnemyType.Follower:
+                 FollowPlayer();
+                break;
 
             default:
                 Debug.LogError("Invalid enemy type: " + enemyType);
@@ -132,20 +143,24 @@ public class EnemyBehaviour : MonoBehaviour
         transform.Translate(direction * moveSpeed * Time.deltaTime);
     }
     IEnumerator StopAndShootProjectile()
-    {
+    {   
         yield return new WaitForSeconds(2);
+        patrolling = false;
         Vector2 shootDirection = player.transform.position - transform.position;
         var enemyProj = Instantiate(EnemyProjGO, transform.position, Quaternion.identity);
         Physics2D.IgnoreCollision(enemyProj.GetComponent<CapsuleCollider2D>(), boxCollider);
         Rigidbody2D rbProj = enemyProj.GetComponent<Rigidbody2D>();
         rbProj.velocity = shootDirection * projSpeed;
+        yield return new WaitForSeconds(0.5f);
+        patrolling = true;
         StartCoroutine(StopAndShootProjectile());
     }
     IEnumerator StopAndTriShootProjectile()
-    {
+    {  
         yield return new WaitForSeconds(2);
+        patrolling = false;
         Vector2 shootDirection = (player.transform.position - transform.position).normalized;
-        float angleOffset = 30f; // Angle offset in degrees
+        float angleOffset = 20f; // Angle offset in degrees
 
         for (int i = 0; i < 3; i++)
         {
@@ -162,7 +177,17 @@ public class EnemyBehaviour : MonoBehaviour
             Rigidbody2D rbProj = enemyProj.GetComponent<Rigidbody2D>();
             rbProj.velocity = direction * projSpeed;
         }
-            StartCoroutine(StopAndTriShootProjectile());
+        yield return new WaitForSeconds (0.5f);
+        patrolling = true;
+
+        StartCoroutine(StopAndTriShootProjectile());
+    }
+    public void FollowPlayer()
+    {
+        Vector3 direction = player.transform.position - transform.position;
+
+        // Move the enemy towards the player.
+        transform.position = Vector3.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
     }
     public void LoseHealth(int damage)
     {
