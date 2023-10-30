@@ -15,8 +15,6 @@ public class EnemyBehaviour : MonoBehaviour
     }
 
 
-
-    [SerializeField] private float movespeed = 2f;
     [SerializeField] private int contactDamage;
     [SerializeField] private int health;
     [SerializeField] private float moveSpeed = 2.0f;
@@ -24,11 +22,13 @@ public class EnemyBehaviour : MonoBehaviour
     [SerializeField] private bool isMovingRight = true;
     [SerializeField] private float projSpeed=9f;
     [SerializeField] private bool patrolling;
+    [SerializeField] private float hopForce;
+    [SerializeField] private Vector3 hopDirection;
 
     private Vector3 spawnPosition;
     private GameObject player;
     private BoxCollider2D boxCollider;
-
+    private Rigidbody2D rb;
 
     public GameObject EnemyProjGO;
     public EnemyType enemyType;
@@ -54,6 +54,11 @@ public class EnemyBehaviour : MonoBehaviour
                 break;
             case EnemyType.TriShooter:
                 StartCoroutine("StopAndTriShootProjectile");
+                break;
+            case EnemyType.HoppingFollower:
+                rb=gameObject.AddComponent<Rigidbody2D>();
+                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                StartCoroutine("StopAndHop");
                 break;
         }
     }
@@ -112,6 +117,9 @@ public class EnemyBehaviour : MonoBehaviour
                 break;
             case EnemyType.Follower:
                  FollowPlayer();
+                break;
+            case EnemyType.HoppingFollower:
+                ChangeDirectionOfHopping();
                 break;
 
             default:
@@ -182,6 +190,40 @@ public class EnemyBehaviour : MonoBehaviour
 
         StartCoroutine(StopAndTriShootProjectile());
     }
+    IEnumerator StopAndHop()
+    {
+        yield return new WaitForSeconds(2f);
+        Vector3 leftHopPoint = transform.Find("LeftHopPoint").position;
+        Vector3 rightHopPoint = transform.Find("RightHopPoint").position;
+        if (isMovingRight)
+        {
+            hopDirection= rightHopPoint - transform.position;
+        }
+        else 
+        { 
+            hopDirection =  leftHopPoint - transform.position;
+        }
+        rb.AddForce(hopDirection * hopForce, ForceMode2D.Impulse);
+        StartCoroutine(StopAndHop());
+    }
+    public void ChangeDirectionOfHopping()
+    {
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector2.left, 1f, ~(1 << 6));
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right, 1f, ~(1 << 6));
+
+        // Check if terrain was hit on the left or right side.
+        if (hitLeft.collider != null && hitLeft.collider.CompareTag("Terrain"))
+        {
+            // Terrain on the left side, set isMovingRight to true.
+            isMovingRight = true;
+        }
+        else if (hitRight.collider != null && hitRight.collider.CompareTag("Terrain"))
+        {
+            // Terrain on the right side, set isMovingRight to false.
+            isMovingRight = false;
+        }
+        Debug.Log(hitRight.collider);
+    }
     public void FollowPlayer()
     {
         Vector3 direction = player.transform.position - transform.position;
@@ -189,6 +231,7 @@ public class EnemyBehaviour : MonoBehaviour
         // Move the enemy towards the player.
         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
     }
+
     public void LoseHealth(int damage)
     {
         health -= damage;
@@ -204,4 +247,5 @@ public class EnemyBehaviour : MonoBehaviour
             LoseHealth(1);
         }
     }
+  
 }

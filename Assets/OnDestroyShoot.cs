@@ -9,10 +9,7 @@ public class OnDestroyShoot : MonoBehaviour
     public GameObject FoundEnemy;
     private void Update()
     {
-        if (FoundEnemy == null)
-        {
-            Destroy(instanceProj)
-        }
+
     }
     private void OnDestroy()
     {

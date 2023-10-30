@@ -6,13 +6,11 @@ using static UnityEngine.GraphicsBuffer;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float dashSpeed = 80f;
-    [SerializeField] private float dashDuration = 0.5f;
     [SerializeField] private float dashCD = 3f;
     [SerializeField] private bool controlling = true;
     [SerializeField] private float currentDistance;
     [SerializeField] private bool isDashing = false;
     [SerializeField] private bool canDash = true;
-    [SerializeField] private bool hitDashRefresher = false;
     public float dashForce;
 
     private PlayerStats PS;
@@ -84,14 +82,16 @@ public class PlayerMovement : MonoBehaviour
         Vector3 dashDirection = (dashTarget - transform.position).normalized;
 
         // Apply a force to maintain momentum
-        rb.AddForce(dashDirection * dashForce, ForceMode2D.Impulse);
 
+        StopControl();
         while (Vector3.Distance(transform.position, dashTarget) > 0.1f)
         {
             // Continue moving towards the target
             transform.position = Vector3.MoveTowards(transform.position, dashTarget, dashSpeed * Time.deltaTime);
             yield return null;
         }
+        rb.AddForce(dashDirection * dashForce, ForceMode2D.Impulse);
+        GainControl();
         isDashing = false;
         rb.gravityScale = 1f;
 
@@ -120,7 +120,6 @@ public class PlayerMovement : MonoBehaviour
         { 
             RefreshDash();
             Destroy(collision.gameObject);
-            hitDashRefresher = true;
 
         }
     }
