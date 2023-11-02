@@ -11,10 +11,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float currentDistance;
     [SerializeField] private bool isDashing = false;
     [SerializeField] private bool canDash = true;
+    [SerializeField] private int refresherCount;
+
     public float dashForce;
 
     private PlayerStats PS;
     private Input_Handler IHS;
+    private OnDestroyShoot ODSS;
     private Camera camera;
     private Rigidbody2D rb;
     private Vector3 dashTarget;
@@ -29,10 +32,14 @@ public class PlayerMovement : MonoBehaviour
         IHS = GetComponent<Input_Handler>();
         rb = GetComponent<Rigidbody2D>();
         camera = Camera.main;
-
+    }
+    private void Start()
+    {
+        refresherCount = 3;
     }
     private void Update()
     {
+
         if (controlling)
         {
             Move();
@@ -98,6 +105,7 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(dashCD);
         RefreshDash();
     }
+
     public void GainControl()
     {
         controlling = true;
@@ -119,6 +127,8 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.tag == "DashRefresher")
         { 
             RefreshDash();
+            ODSS=collision.GetComponent<OnDestroyShoot>();
+            ODSS.Shoot();
             Destroy(collision.gameObject);
 
         }

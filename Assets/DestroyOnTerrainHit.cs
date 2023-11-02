@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class DestroyOnTerrainHit : MonoBehaviour
 {
-
     public void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag =="Terrain")
@@ -12,4 +11,5 @@ public class DestroyOnTerrainHit : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+    
 }

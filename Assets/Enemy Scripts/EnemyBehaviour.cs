@@ -24,12 +24,18 @@ public class EnemyBehaviour : MonoBehaviour
     [SerializeField] private bool patrolling;
     [SerializeField] private float hopForce;
     [SerializeField] private Vector3 hopDirection;
+    [SerializeField] private bool dodgeCD = true;
+    [SerializeField] private float checkInterval = 0.2f; // Check for projectiles every 1 second
 
+    private float lastCheckTime;
     private Vector3 spawnPosition;
     private GameObject player;
     private BoxCollider2D boxCollider;
+    private BoxCollider2D shieldCollider;
     private Rigidbody2D rb;
 
+    private Renderer renderer;
+    public GameObject Shield;
     public GameObject EnemyProjGO;
     public EnemyType enemyType;
     public PlayerStats PSS;
@@ -42,6 +48,7 @@ public class EnemyBehaviour : MonoBehaviour
     private void Start()
     {
         patrolling = true;
+        renderer = GetComponent<Renderer>();
 
         contactDamage = GetContactDamage(enemyType);
         health = GetHealth(enemyType);
@@ -59,6 +66,10 @@ public class EnemyBehaviour : MonoBehaviour
                 rb=gameObject.AddComponent<Rigidbody2D>();
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 StartCoroutine("StopAndHop");
+                break;
+            case EnemyType.ShieldedShooter:
+                SpawnShield();
+                StartCoroutine("StopAndTriShootProjectile");
                 break;
         }
     }
@@ -121,6 +132,10 @@ public class EnemyBehaviour : MonoBehaviour
             case EnemyType.HoppingFollower:
                 ChangeDirectionOfHopping();
                 break;
+            case EnemyType.ShieldedShooter:
+                if (patrolling) Patrol();
+                DetectProjectiles();
+                break;
 
             default:
                 Debug.LogError("Invalid enemy type: " + enemyType);
@@ -181,7 +196,10 @@ public class EnemyBehaviour : MonoBehaviour
 
 
             Physics2D.IgnoreCollision(enemyProj.GetComponent<CapsuleCollider2D>(), boxCollider);
-
+            if (shieldCollider != null)
+            {
+                Physics2D.IgnoreCollision(enemyProj.GetComponent<CapsuleCollider2D>(), shieldCollider);
+            }
             Rigidbody2D rbProj = enemyProj.GetComponent<Rigidbody2D>();
             rbProj.velocity = direction * projSpeed;
         }
@@ -206,20 +224,27 @@ public class EnemyBehaviour : MonoBehaviour
         rb.AddForce(hopDirection * hopForce, ForceMode2D.Impulse);
         StartCoroutine(StopAndHop());
     }
+    IEnumerator SpeedDodge()
+    {
+        moveSpeed = 10f;
+        yield return new WaitForSeconds(0.5f);
+        moveSpeed = 2f;
+        dodgeCD = false;
+        yield return new WaitForSeconds(3f);
+        dodgeCD = true;
+    }
     public void ChangeDirectionOfHopping()
     {
         RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector2.left, 1f, ~(1 << 6));
         RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right, 1f, ~(1 << 6));
 
-        // Check if terrain was hit on the left or right side.
+        
         if (hitLeft.collider != null && hitLeft.collider.CompareTag("Terrain"))
-        {
-            // Terrain on the left side, set isMovingRight to true.
+        {    
             isMovingRight = true;
         }
         else if (hitRight.collider != null && hitRight.collider.CompareTag("Terrain"))
         {
-            // Terrain on the right side, set isMovingRight to false.
             isMovingRight = false;
         }
         Debug.Log(hitRight.collider);
@@ -231,6 +256,38 @@ public class EnemyBehaviour : MonoBehaviour
         // Move the enemy towards the player.
         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
     }
+
+    public void SpawnShield()
+    {
+        GameObject shieldInstant = Instantiate(Shield, this.transform);
+        shieldInstant.transform.localPosition = Vector3.zero; // Example position
+        shieldInstant.transform.localRotation = Quaternion.identity; // Example rotation
+        shieldInstant.transform.SetParent(this.transform);
+        shieldCollider=shieldInstant.GetComponent<BoxCollider2D>();
+    }
+
+    public void DetectProjectiles()
+    {
+        if (Time.time - lastCheckTime >= checkInterval)
+        {
+            GameObject projectile = GameObject.FindGameObjectWithTag("Projectile");
+
+            if (projectile != null && dodgeCD)
+            {
+                StartCoroutine("SpeedDodge");
+            }
+        }
+        if (dodgeCD)
+        {
+            renderer.material.SetColor("_Color", Color.cyan);
+        }
+        else
+        {
+            renderer.material.SetColor("_Color", Color.red);
+        }
+    }
+
+
 
     public void LoseHealth(int damage)
     {
